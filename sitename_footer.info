@@ -1,0 +1,10 @@
+name = sitename_footer
+description = custom footer block with configuration options.
+package = Custom
+version = VERSION
+core = 7.x
+configure = admin/config/administration/sitename_footer
+
+
+
+

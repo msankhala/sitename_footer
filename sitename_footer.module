@@ -1,0 +1,127 @@
+<?php
+ 
+/**
+ * Implements hook_block_info().
+ */
+function sitename_footer_block_info() {
+  $blocks['footer'] = array(
+    'info' => t('Example Site - Footer'),
+  );
+  return $blocks;
+}
+ 
+/**
+ * Implements hook_block_view().
+ */
+function sitename_footer_block_view($delta = '') {
+  $block = array();
+ 
+  // Depending on the specified delta return the correct block content.
+  // Note: This switch is not required if you have only one block, you can
+  // simply return the the block array
+  switch ($delta) {
+    case 'footer':
+      // We don't want the block to have a title.
+      $block['subject'] = '<none>';
+      // Using a Renderable Array rather than a HTML-returning callback function.
+      $block['content'] = array(
+        // Specify the theme function to use.
+        '#theme' => 'sitename_footer',
+        // Provide variable values as specified in hook_theme.
+        '#copyright' => check_plain(variable_get('sitename_footer_copyright', 'Company Name')),
+        '#copyright_start' => check_plain(variable_get('sitename_footer_copyright_start', '1885')),
+        '#copyright_end' => format_date(time(), 'custom' , 'Y'),
+        '#phone' => check_plain(variable_get('sitename_footer_phone', '555-867-5309')),
+        '#address' => check_plain(variable_get('sitename_footer_address', '123 Main St. North Pole')),
+      );
+      break;
+  }
+  return $block;
+}
+ 
+/**
+ * Implements hook_theme().
+ */
+function sitename_footer_theme() {
+  return array(
+    'sitename_footer' => array(
+      // Specify variables you'll be using in the template
+      'variables' => array(
+        // NULL is correct. Values set here are stored in Theme Registry.
+        'copyright' => NULL,
+        'copyright_start' => NULL,
+        'copyright_end' => NULL,
+        'phone' => NULL,
+        'address' => NULL,
+      ),
+      // Use a template file called sitename_footer.tpl.php
+      'template' => 'sitename_footer',
+      'path' => drupal_get_path('module', 'sitename_footer') . '/templates'
+    ),
+  );
+}
+ 
+/**
+ * Implements hook_menu().
+ */
+function sitename_footer_menu() {
+  $items['admin/config/administration/example_footer'] = array(
+    'title' => 'Example site - footer',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sitename_footer_configure'),
+    // Use the default/standard site configuration permission.
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  return $items;
+}
+ 
+/**
+ * Creates/returns a form to configure the block's variables.
+ *
+ * @param array $form
+ * @param array $form_state
+ * @return array
+ */
+function sitename_footer_configure($form, &$form_state) {
+  $form['sitename_footer_copyright'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Site copyright owner'),
+    '#description' => t('The company/organization/person/entity to show as copyright holder.'),
+    '#default_value' => variable_get('sitename_footer_copyright', 'Company Name'),
+    '#size' => 60,
+    '#maxlength' => 120,
+    '#required' => TRUE,
+  );
+ 
+  $form['sitename_footer_copyright_start'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Site copyright start date'),
+    '#description' => t('The start date for copyright of the content; end date is assumed to be the current year.'),
+    '#default_value' => variable_get('sitename_footer_copyright_start', '1955'), // Got it Marty?
+    '#size' => 4,
+    '#maxlength' => 4,
+    '#required' => FALSE,
+  );
+  $form['sitename_footer_phone'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Site phone number'),
+    '#description' => t('The phone number of the copyright holder.'),
+    '#default_value' => variable_get('sitename_footer_phone', '555-867-5309'),
+    '#size' => 20,
+    '#maxlength' => 20,
+    '#required' => FALSE,
+  );
+  $form['sitename_footer_address'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Site street address'),
+    '#description' => t('The street address of the copyright holder.'),
+    '#default_value' => variable_get('sitename_footer_address', '123 Main St. North Pole'),
+    '#size' => 120,
+    '#maxlength' => 120,
+    '#required' => FALSE,
+  );
+ 
+  // Use system_settings_form() to automate saving configuration variables.
+  return system_settings_form($form);
+}
